@@ -1,0 +1,48 @@
+name: Using GITHUB_TOKEN
+
+on:
+  workflow_dispatch:
+
+jobs:
+  use-github-token:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout with token
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get repository information using GitHub API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching repository info using GitHub API..."
+          
+          # Get repository details
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/${{ github.repository }}" | \
+               jq '{name: .name, stars: .stargazers_count, forks: .forks_count, open_issues: .open_issues_count}'
+      
+      - name: List workflow runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Recent workflow runs:"
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=5" | \
+               jq '.workflow_runs[] | {name: .name, status: .status, conclusion: .conclusion}'
+      
+      - name: What GITHUB_TOKEN can do
+        run: |
+          echo "GITHUB_TOKEN automatically provides:"
+          echo "✓ Read repository contents"
+          echo "✓ Read and write checks"
+          echo "✓ Read and write issues"
+          echo "✓ Read and write pull requests"
+          echo "✓ Read and write repository projects"
+          echo ""
+          echo "GITHUB_TOKEN expires when the job completes"
+          echo "No need to create or manage this token manually!"
