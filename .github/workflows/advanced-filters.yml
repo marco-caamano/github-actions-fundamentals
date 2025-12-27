@@ -10,6 +10,9 @@ on:
     paths:
       - 'src/**'
       - 'package.json'
+
+  pull_request:
+    branches: [main]
     paths-ignore:
       - 'src/tests/**'
 
