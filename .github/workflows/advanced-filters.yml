@@ -1,0 +1,39 @@
+name: Advanced Filtering
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+    tags:
+      - 'v*'
+    paths:
+      - 'src/**'
+      - 'package.json'
+    paths-ignore:
+      - 'src/tests/**'
+
+jobs:
+  filtered-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Show trigger details
+        run: |
+          echo "Ref: ${{ github.ref }}"
+          echo "Ref name: ${{ github.ref_name }}"
+          echo "Ref type: ${{ github.ref_type }}"
+          
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "✓ Triggered by tag: ${{ github.ref_name }}"
+          else
+            echo "✓ Triggered by branch: ${{ github.ref_name }}"
+          fi
+      
+      - name: Build application
+        run: |
+          echo "Building application..."
+          echo "Only runs when src/ or package.json changes"
+          echo "Does not run for test file changes"
