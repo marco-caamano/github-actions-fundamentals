@@ -1,0 +1,51 @@
+name: Multi-Trigger Workflow
+
+on:
+  push:
+    branches: [main]
+  
+  pull_request:
+    branches: [main]
+  
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Monday
+  
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+
+jobs:
+  identify-trigger:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Identify how workflow was triggered
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "✓ Triggered by push to ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
+          
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "✓ Triggered by pull request #${{ github.event.pull_request.number }}"
+            echo "PR: ${{ github.event.pull_request.title }}"
+          
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "✓ Triggered by scheduled cron job"
+            echo "Weekly maintenance run"
+          
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "✓ Triggered manually by ${{ github.actor }}"
+            echo "Reason: ${{ github.event.inputs.reason }}"
+          fi
+      
+      - name: Conditional step for push only
+        if: github.event_name == 'push'
+        run: echo "This only runs on push events"
+      
+      - name: Conditional step for PR only
+        if: github.event_name == 'pull_request'
+        run: echo "This only runs on pull request events"
