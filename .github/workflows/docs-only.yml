@@ -1,0 +1,26 @@
+name: Documentation Updates
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - '**.md'
+    branches:
+      - main
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: List changed files
+        run: |
+          echo "Documentation files were modified"
+          echo "This workflow only runs when docs or markdown files change"
+      
+      - name: Count markdown files
+        run: |
+          echo "Markdown files in repository:"
+          find . -name "*.md" -type f | wc -l
