@@ -1,0 +1,19 @@
+name: Branch Specific Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+
+jobs:
+  branch-info:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Show branch information
+        run: |
+          echo "Workflow triggered on branch: ${{ github.ref_name }}"
+          echo "Full ref: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
