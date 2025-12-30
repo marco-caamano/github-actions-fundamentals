@@ -1,0 +1,34 @@
+name: Error Handling
+
+on:
+  workflow_dispatch:
+
+jobs:
+  handle-errors:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Step 1 - Success
+        run: echo "Step 1 executes successfully"
+      
+      - name: Step 2 - Will fail but continue
+        continue-on-error: true
+        run: |
+          echo "This step will fail..."
+          exit 1
+      
+      - name: Step 3 - Still runs
+        run: echo "Step 3 runs even though step 2 failed"
+      
+      - name: Step 4 - Another failure
+        id: failing-step
+        continue-on-error: true
+        run: exit 1
+      
+      - name: Step 5 - Check previous step
+        if: steps.failing-step.outcome == 'failure'
+        run: echo "Previous step failed as expected"
+      
+      - name: Step 6 - Final step
+        if: always()
+        run: echo "This always runs for cleanup"
