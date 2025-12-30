@@ -1,0 +1,62 @@
+name: Conditional Jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate deployment
+        run: |
+          echo "Validating deployment to ${{ github.event.inputs.environment }}"
+          echo "Validation passed!"
+  
+  deploy-dev:
+    needs: validate
+    if: github.event.inputs.environment == 'development'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to development
+        run: echo "🚀 Deploying to development environment"
+  
+  deploy-staging:
+    needs: validate
+    if: github.event.inputs.environment == 'staging'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to staging
+        run: echo "🚀 Deploying to staging environment"
+  
+  deploy-production:
+    needs: validate
+    if: github.event.inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "⚠️  PRODUCTION DEPLOYMENT"
+          echo "🚀 Deploying to production environment"
+  
+  notify:
+    needs: [deploy-dev, deploy-staging, deploy-production]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Send notification
+        run: |
+          echo "Deployment workflow completed"
+          echo "Target: ${{ github.event.inputs.environment }}"
