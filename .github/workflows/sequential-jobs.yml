@@ -1,0 +1,48 @@
+name: Sequential Jobs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup phase
+        run: |
+          echo "Setting up environment..."
+          echo "Installing dependencies..."
+          echo "Setup complete!"
+  
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Build phase
+        run: |
+          echo "Building application..."
+          echo "Compiling code..."
+          echo "Build complete!"
+  
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Test phase
+        run: |
+          echo "Running tests..."
+          echo "All tests passed!"
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy phase
+        run: |
+          echo "Deploying to production..."
+          echo "Deployment successful!"
