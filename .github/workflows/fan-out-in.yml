@@ -1,0 +1,57 @@
+name: Fan-Out Fan-In Pattern
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Preparation
+        run: echo "Preparing data for parallel processing..."
+  
+  # Fan-out: Multiple parallel jobs
+  process-1:
+    needs: prepare
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Process dataset 1
+        run: |
+          echo "Processing dataset 1..."
+          sleep 3
+          echo "Dataset 1 complete"
+  
+  process-2:
+    needs: prepare
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Process dataset 2
+        run: |
+          echo "Processing dataset 2..."
+          sleep 3
+          echo "Dataset 2 complete"
+  
+  process-3:
+    needs: prepare
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Process dataset 3
+        run: |
+          echo "Processing dataset 3..."
+          sleep 3
+          echo "Dataset 3 complete"
+  
+  # Fan-in: Aggregate results
+  aggregate:
+    needs: [process-1, process-2, process-3]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Combine results
+        run: |
+          echo "Aggregating results from all processes..."
+          echo "All datasets processed successfully!"
