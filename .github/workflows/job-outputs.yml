@@ -1,0 +1,46 @@
+name: Job Outputs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-data:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      build-number: ${{ steps.generate.outputs.build-number }}
+      version: ${{ steps.generate.outputs.version }}
+      timestamp: ${{ steps.generate.outputs.timestamp }}
+    
+    steps:
+      - name: Generate build information
+        id: generate
+        run: |
+          BUILD_NUM=$((RANDOM % 1000))
+          VERSION="1.0.$BUILD_NUM"
+          TIMESTAMP=$(date +%s)
+          
+          echo "build-number=$BUILD_NUM" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          
+          echo "Generated Build #$BUILD_NUM"
+          echo "Version: $VERSION"
+  
+  use-data:
+    needs: generate-data
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Display build information
+        run: |
+          echo "Using build information from previous job:"
+          echo "Build Number: ${{ needs.generate-data.outputs.build-number }}"
+          echo "Version: ${{ needs.generate-data.outputs.version }}"
+          echo "Timestamp: ${{ needs.generate-data.outputs.timestamp }}"
+      
+      - name: Create build artifact
+        run: |
+          echo "Creating artifact for version ${{ needs.generate-data.outputs.version }}"
+          echo "Build #${{ needs.generate-data.outputs.build-number }}" > build.txt
+          cat build.txt
