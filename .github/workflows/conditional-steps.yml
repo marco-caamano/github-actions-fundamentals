@@ -1,0 +1,52 @@
+name: Conditional Steps
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  conditional-steps:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Always runs
+        run: echo "This step always executes"
+      
+      - name: Only on push
+        if: github.event_name == 'push'
+        run: echo "This step only runs on push events"
+      
+      - name: Only on manual trigger
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "This step only runs on manual triggers"
+      
+      - name: Only on main branch
+        if: github.ref == 'refs/heads/main'
+        run: echo "This step only runs on main branch"
+      
+      - name: Simulate test
+        id: test
+        run: |
+          # Randomly pass or fail
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            echo "result=success" >> $GITHUB_OUTPUT
+            echo "Tests passed!"
+          else
+            echo "result=failure" >> $GITHUB_OUTPUT
+            echo "Tests failed!"
+            exit 1
+          fi
+        continue-on-error: true
+      
+      - name: Run only if tests passed
+        if: steps.test.outputs.result == 'success'
+        run: echo "✓ Proceeding with deployment"
+      
+      - name: Run only if tests failed
+        if: steps.test.outputs.result == 'failure'
+        run: echo "✗ Skipping deployment due to test failure"
+      
+      - name: Cleanup (always runs)
+        if: always()
+        run: echo "Performing cleanup..."
